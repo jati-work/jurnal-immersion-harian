@@ -297,6 +297,7 @@ export default function PaketDetail({ paketId, goTo }) {
     style={{ flex: 1, padding: 8, borderRadius: 8, border: '1.5px solid #b8d8b8' }} />
   <button className="act-btn active" onClick={simpanKata} style={{ whiteSpace: 'nowrap' }}>Simpan</button>
 </div>
+        </div>
       )}
 
       <div className="grid-wrap">
