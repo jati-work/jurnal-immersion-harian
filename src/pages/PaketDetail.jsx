@@ -191,10 +191,14 @@ export default function PaketDetail({ paketId, goTo }) {
     const path = `${paketId}-${Date.now()}.pdf`
     const { error: upErr } = await supabase.storage.from('immersion-pdfs').upload(path, file, { upsert: true })
     if (upErr) { alert('Gagal upload: ' + upErr.message); setUploading(false); return }
-    await supabase.from('paket').update({ pdf_path: path }).eq('id', paketId)
+    const { error: updErr } = await supabase.from('paket').update({ pdf_path: path }).eq('id', paketId)
+    if (updErr) { alert('Gagal nyimpen path PDF: ' + updErr.message); setUploading(false); return }
+    const { data: signed, error: signErr } = await supabase.storage.from('immersion-pdfs').createSignedUrl(path, 3600)
     setUploading(false)
-    await muatSemua()
-    bukaPdf()
+    if (signErr) { alert('Upload sukses, tapi gagal nampilin PDF-nya: ' + signErr.message); muatSemua(); return }
+    setPdfUrl(signed.signedUrl)
+    setShowPdf(true)
+    muatSemua()
   }
   async function hapusPdf() {
     if (!confirm('Hapus PDF dari paket ini?')) return
@@ -249,18 +253,16 @@ export default function PaketDetail({ paketId, goTo }) {
       <div className="header-bar">
         <button className="icon-btn" onClick={() => goTo('paket')} title="Kembali">←</button>
         <div className="title">{paket.nama}</div>
-        <button className={`act-btn ${paket.pdf_path ? 'active' : ''}`} onClick={bukaPdf} title={paket.pdf_path ? 'Lihat PDF' : 'Belum ada PDF'}>📄</button>
+        {bagianList.length > 0 && (
+          <>
+            <button className={`act-btn ${filterBagian === 'all' ? 'active' : ''}`} onClick={() => setFilterBagian('all')}>Semua</button>
+            {bagianList.map(b => (
+              <button key={b} className={`act-btn ${filterBagian === b ? 'active' : ''}`} onClick={() => setFilterBagian(b)}>{b}</button>
+            ))}
+          </>
+        )}
         <div className="stats">{kataList.length} kata · ✓ {jumlahHafal} hafal</div>
       </div>
-
-      {bagianList.length > 0 && (
-        <div className="actions" style={{ marginBottom: 0 }}>
-          <button className={`act-btn ${filterBagian === 'all' ? 'active' : ''}`} onClick={() => setFilterBagian('all')}>Semua</button>
-          {bagianList.map(b => (
-            <button key={b} className={`act-btn ${filterBagian === b ? 'active' : ''}`} onClick={() => setFilterBagian(b)}>{b}</button>
-          ))}
-        </div>
-      )}
 
       <div className="actions">
         <button className={`act-btn ${kartuMode === 'buka' ? 'active' : ''}`} onClick={() => setKartu('buka')}>Buka semua ▾</button>
@@ -274,6 +276,7 @@ export default function PaketDetail({ paketId, goTo }) {
         <button className="act-btn" onClick={tambahBagian}>＋ Bagian</button>
         <button className={`act-btn ${editMode ? 'active' : ''}`} onClick={toggleEditMode} title="Mode Edit">✏️</button>
         <button className={`act-btn ${hapusMode ? 'active' : ''}`} onClick={toggleHapusMode} title="Mode Hapus Kata">🗑️</button>
+        <button className={`act-btn ${paket.pdf_path ? 'active' : ''}`} onClick={bukaPdf} title={paket.pdf_path ? 'Lihat PDF' : 'Belum ada PDF'}>📄</button>
         <button className="icon-btn danger" onClick={resetHafalan} title="Reset Hafalan" style={{ marginLeft: 'auto' }}>↺</button>
       </div>
 
@@ -347,7 +350,7 @@ export default function PaketDetail({ paketId, goTo }) {
         <div className="pdf-panel">
           <div className="pdf-panel-header">
             <div style={{ flex: 1, fontWeight: 700, color: '#2d6a4a', fontSize: 13 }}>📄 {paket.nama}</div>
-            {paket.pdf_path && <button className="icon-btn danger" onClick={hapusPdf}>🗑️ Hapus</button>}
+            {paket.pdf_path && <button className="icon-btn danger" onClick={hapusPdf} title="Hapus PDF">🗑️</button>}
             <button className="icon-btn" onClick={() => setShowPdf(false)}>✕</button>
           </div>
           <div className="pdf-panel-body">
