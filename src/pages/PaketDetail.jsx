@@ -289,13 +289,14 @@ export default function PaketDetail({ paketId, goTo }) {
               {bagianList.map(b => <option key={b} value={b}>{b}</option>)}
             </select>
           )}
-          <input placeholder="Kata JP (kanji/kana)" value={jp} onChange={e => setJp(e.target.value)}
-            style={{ width: '100%', padding: 8, borderRadius: 8, border: '1.5px solid #b8d8b8', marginBottom: 8, fontFamily: "'Noto Serif JP', serif" }} />
-          <input placeholder="Arti ID" value={arti} onChange={e => setArti(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && simpanKata()}
-            style={{ width: '100%', padding: 8, borderRadius: 8, border: '1.5px solid #b8d8b8', marginBottom: 8 }} />
-          <button className="act-btn active" onClick={simpanKata}>Simpan</button>
-        </div>
+<div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+  <input placeholder="Kata JP (kanji/kana)" value={jp} onChange={e => setJp(e.target.value)}
+    style={{ flex: 1.2, padding: 8, borderRadius: 8, border: '1.5px solid #b8d8b8', fontFamily: "'Noto Serif JP', serif" }} />
+  <input placeholder="Arti ID" value={arti} onChange={e => setArti(e.target.value)}
+    onKeyDown={e => e.key === 'Enter' && simpanKata()}
+    style={{ flex: 1, padding: 8, borderRadius: 8, border: '1.5px solid #b8d8b8' }} />
+  <button className="act-btn active" onClick={simpanKata} style={{ whiteSpace: 'nowrap' }}>Simpan</button>
+</div>
       )}
 
       <div className="grid-wrap">
