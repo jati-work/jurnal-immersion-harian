@@ -1,13 +1,26 @@
-import { supabase } from '../supabaseClient'
+import CaraBelajar from '../components/CaraBelajar'
 
 export default function Cover({ goTo, jumlahPaket, jumlahKata, jumlahHariJurnal }) {
   function kunciUlang() {
+    if (!confirm('Keluar dan minta kata sandi lagi waktu buka app berikutnya?')) return
     localStorage.removeItem('immersion-unlocked')
     window.location.reload()
   }
 
   return (
     <div className="cover">
+      <button
+        onClick={kunciUlang}
+        title="Keluar (minta kata sandi lagi pas buka app berikutnya)"
+        style={{
+          position: 'fixed', top: 20, right: 20, width: 32, height: 32, borderRadius: '50%',
+          border: '1.5px solid #b8d8b8', background: '#fff', cursor: 'pointer', color: '#7aaa8a',
+          fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50,
+        }}
+      >
+        🔒
+      </button>
+
       <div className="cover-inner">
         <div className="cover-head">
           <div className="cover-emoji">🌿</div>
@@ -37,16 +50,7 @@ export default function Cover({ goTo, jumlahPaket, jumlahKata, jumlahHariJurnal 
           </div>
         </div>
 
-        <button
-          onClick={kunciUlang}
-          style={{
-            marginTop: 18, width: '100%', padding: '9px 10px', borderRadius: 10,
-            border: '1.5px solid #c8ddc8', background: '#fff', cursor: 'pointer',
-            fontSize: 11.5, fontWeight: 600, color: '#2d6a4a',
-          }}
-        >
-          🔒 Kunci Ulang
-        </button>
+        <CaraBelajar />
       </div>
     </div>
   )
