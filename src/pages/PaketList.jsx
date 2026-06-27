@@ -26,9 +26,9 @@ export default function PaketList({ goTo, openPaket }) {
     const nama = prompt('Nama paket baru (contoh: Anime XYZ Eps 1):')
     if (!nama || !nama.trim()) return
     const tanggal = prompt('Tanggal/bulan paket ini (contoh: Januari 2026) — boleh dikosongin:', '')
-    const urutanMax = paketList.length > 0 ? Math.max(...paketList.map(p => p.urutan)) + 1 : 0
+    const urutanMin = paketList.length > 0 ? Math.min(...paketList.map(p => p.urutan)) - 1 : 0
     const { error } = await supabase.from('paket').insert({
-      nama: nama.trim(), tanggal: tanggal ? tanggal.trim() : '', urutan: urutanMax,
+      nama: nama.trim(), tanggal: tanggal ? tanggal.trim() : '', urutan: urutanMin,
     })
     if (error) alert('Gagal nambah paket: ' + error.message)
     else muatPaket()
