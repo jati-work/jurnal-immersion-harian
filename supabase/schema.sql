@@ -15,6 +15,7 @@ create table if not exists paket (
   tanggal text default '',           -- bebas teks, misal "Januari 2026"
   urutan int not null default 0,     -- buat urutan manual (drag/naik-turun)
   pdf_path text,                     -- path file di Supabase Storage (nullable)
+  bagian_list text[] default '{}',   -- daftar nama "Bagian" (sub-grup) di paket ini
   created_at timestamptz default now()
 );
 
