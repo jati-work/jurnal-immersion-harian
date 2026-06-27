@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { supabase } from '../supabaseClient'
 
-export default function PaketList({ goTo, openPaket, userId }) {
+export default function PaketList({ goTo, openPaket }) {
   const [paketList, setPaketList] = useState([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
@@ -28,7 +28,7 @@ export default function PaketList({ goTo, openPaket, userId }) {
     const tanggal = prompt('Tanggal/bulan paket ini (contoh: Januari 2026) — boleh dikosongin:', '')
     const urutanMax = paketList.length > 0 ? Math.max(...paketList.map(p => p.urutan)) + 1 : 0
     const { error } = await supabase.from('paket').insert({
-      nama: nama.trim(), tanggal: tanggal ? tanggal.trim() : '', urutan: urutanMax, user_id: userId,
+      nama: nama.trim(), tanggal: tanggal ? tanggal.trim() : '', urutan: urutanMax,
     })
     if (error) alert('Gagal nambah paket: ' + error.message)
     else muatPaket()
