@@ -38,6 +38,7 @@ export default function PaketDetail({ paketId, goTo }) {
   const [kartuMode, setKartuMode] = useState(null) // 'buka' | 'tutup' | null
   const [editMode, setEditMode] = useState(false)
   const [hapusMode, setHapusMode] = useState(false)
+  const [showMenu, setShowMenu] = useState(false)
 
   // ----- tes (quiz) -----
   const [tes, setTes] = useState(null)
@@ -264,7 +265,7 @@ export default function PaketDetail({ paketId, goTo }) {
         <div className="stats">{kataList.length} kata · ✓ {jumlahHafal} hafal</div>
       </div>
 
-      <div className="actions">
+<div className="actions">
         <button className={`act-btn ${kartuMode === 'buka' ? 'active' : ''}`} onClick={() => setKartu('buka')}>Buka semua ▾</button>
         <button className={`act-btn ${kartuMode === 'tutup' ? 'active' : ''}`} onClick={() => setKartu('tutup')}>Tutup semua ▴</button>
         <button className={`act-btn ${random ? 'active' : ''}`} onClick={toggleRandom}>🔀 Random</button>
@@ -273,11 +274,23 @@ export default function PaketDetail({ paketId, goTo }) {
         <button className="act-btn" onClick={() => startTes('id-jp')}>📝 Tes ▾</button>
         <button className="act-btn" onClick={() => startTes('jp-id')}>📝 Tes ▴</button>
         <button className="act-btn" onClick={() => setShowForm(s => !s)}>＋ Kata</button>
-        <button className="act-btn" onClick={tambahBagian}>＋ Bagian</button>
-        <button className={`act-btn ${editMode ? 'active' : ''}`} onClick={toggleEditMode} title="Mode Edit">✏️</button>
-        <button className={`act-btn ${hapusMode ? 'active' : ''}`} onClick={toggleHapusMode} title="Mode Hapus Kata">🗑️</button>
         <button className={`act-btn ${paket.pdf_path ? 'active' : ''}`} onClick={bukaPdf} title={paket.pdf_path ? 'Lihat PDF' : 'Belum ada PDF'}>📄</button>
-        <button className="icon-btn danger" onClick={resetHafalan} title="Reset Hafalan" style={{ marginLeft: 'auto' }}>↺</button>
+
+        <div style={{ position: 'relative', marginLeft: 'auto' }}>
+          <button className="icon-btn" onClick={() => setShowMenu(m => !m)} title="Menu lainnya">⋯</button>
+          {showMenu && (
+            <div style={{
+              position: 'absolute', right: 0, top: 36, background: '#fff', border: '1.5px solid #ddd',
+              borderRadius: 10, padding: 6, display: 'flex', flexDirection: 'column', gap: 4,
+              boxShadow: '0 4px 16px rgba(0,0,0,.1)', zIndex: 20, minWidth: 160,
+            }}>
+              <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { tambahBagian(); setShowMenu(false) }}>＋ Bagian</button>
+              <button className={`act-btn ${editMode ? 'active' : ''}`} style={{ textAlign: 'left' }} onClick={() => { toggleEditMode(); setShowMenu(false) }}>✏️ Mode Edit</button>
+              <button className={`act-btn ${hapusMode ? 'active' : ''}`} style={{ textAlign: 'left' }} onClick={() => { toggleHapusMode(); setShowMenu(false) }}>🗑️ Mode Hapus</button>
+              <button className="act-btn" style={{ textAlign: 'left', color: '#c0392b' }} onClick={() => { resetHafalan(); setShowMenu(false) }}>↺ Reset Hafalan</button>
+            </div>
+          )}
+        </div>
       </div>
 
       {showForm && (
