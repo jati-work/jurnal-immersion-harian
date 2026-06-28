@@ -254,7 +254,6 @@ async function tesLanjut() {
     <div>
       <div className="header-bar">
         <div className="title">{paket.nama}</div>
-        <button className="icon-btn" onClick={() => goTo('paket')} title="Kembali">←</button>
         {bagianList.length > 0 && (
           <>
             <button className={`act-btn ${filterBagian === 'all' ? 'active' : ''}`} onClick={() => setFilterBagian('all')}>Semua</button>
@@ -264,6 +263,7 @@ async function tesLanjut() {
           </>
         )}
         <div className="stats">{kataList.length} kata · ✓ {jumlahHafal} hafal</div>
+        <button className="icon-btn" onClick={() => goTo('paket')} title="Kembali">←</button>
       </div>
 
 <div className="actions">
