@@ -53,17 +53,18 @@ export default function PaketDetail({ paketId, goTo }) {
 
   const bagianList = paket?.bagian_list || []
 
-  function toggleFlip(id) {
-    const next = new Set(flipped)
-    if (next.has(id)) next.delete(id); else next.add(id)
-    setFlipped(next)
-    setKartuMode(null)
-  }
+function toggleFlip(id) {
+  const next = new Set(flipped)
+  if (next.has(id)) next.delete(id); else next.add(id)
+  setFlipped(next)
+  setKartuMode(null)
+  supabase.from('kata').update({ last_reviewed_at: new Date().toISOString() }).eq('id', id) // gak perlu nunggu (fire-and-forget), biar flip-nya tetep instan
+}
 
-  async function toggleHafal(k) {
-    await supabase.from('kata').update({ hafal: !k.hafal }).eq('id', k.id)
-    muatSemua()
-  }
+async function toggleHafal(k) {
+  await supabase.from('kata').update({ hafal: !k.hafal, last_reviewed_at: new Date().toISOString() }).eq('id', k.id)
+  muatSemua()
+}
 
   async function cekDuplikat(jpText) {
     const norm = normalisasiJP(jpText)
@@ -231,17 +232,17 @@ export default function PaketDetail({ paketId, goTo }) {
       benarIds: benar ? [...t.benarIds, w.id] : t.benarIds,
     }))
   }
-  async function tesLanjut() {
-    if (tes.idx + 1 >= tes.words.length) {
-      if (tes.benarIds.length > 0) {
-        await Promise.all(tes.benarIds.map(id => supabase.from('kata').update({ hafal: true }).eq('id', id)))
-        muatSemua()
-      }
-      setTes(t => ({ ...t, idx: t.idx + 1 }))
-    } else {
-      setTes(t => ({ ...t, idx: t.idx + 1, answered: false, input: '', salah: false }))
+async function tesLanjut() {
+  if (tes.idx + 1 >= tes.words.length) {
+    if (tes.benarIds.length > 0) {
+      await Promise.all(tes.benarIds.map(id => supabase.from('kata').update({ hafal: true, last_reviewed_at: new Date().toISOString() }).eq('id', id)))
+      muatSemua()
     }
+    setTes(t => ({ ...t, idx: t.idx + 1 }))
+  } else {
+    setTes(t => ({ ...t, idx: t.idx + 1, answered: false, input: '', salah: false }))
   }
+}
   function tutupTes() { setTes(null) }
 
   if (!paket) return <div style={{ padding: 40, textAlign: 'center', color: '#9abaa8' }}>Memuat...</div>
