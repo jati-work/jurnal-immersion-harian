@@ -58,11 +58,10 @@ function toggleFlip(id) {
   if (next.has(id)) next.delete(id); else next.add(id)
   setFlipped(next)
   setKartuMode(null)
-  supabase.from('kata').update({ last_reviewed_at: new Date().toISOString() }).eq('id', id) // gak perlu nunggu (fire-and-forget), biar flip-nya tetep instan
 }
 
 async function toggleHafal(k) {
-  await supabase.from('kata').update({ hafal: !k.hafal, last_reviewed_at: new Date().toISOString() }).eq('id', k.id)
+  await supabase.from('kata').update({ hafal: !k.hafal }).eq('id', k.id)
   muatSemua()
 }
 
@@ -265,7 +264,7 @@ async function toggleHafal(k) {
 async function tesLanjut() {
   if (tes.idx + 1 >= tes.words.length) {
     if (tes.benarIds.length > 0) {
-      await Promise.all(tes.benarIds.map(id => supabase.from('kata').update({ hafal: true, last_reviewed_at: new Date().toISOString() }).eq('id', id)))
+      await Promise.all(tes.benarIds.map(id => supabase.from('kata').update({ hafal: true }).eq('id', id)))
       muatSemua()
     }
     setTes(t => ({ ...t, idx: t.idx + 1 }))
