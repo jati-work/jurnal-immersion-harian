@@ -60,9 +60,9 @@ export default function Jurnal({ goTo }) {
   return (
     <div>
       <div className="header-bar">
-        <button className="icon-btn" onClick={() => goTo('cover')} title="Kembali">←</button>
         <div className="title">📅 Jurnal Kalender</div>
         <div className="stats">{filledCount}/{totalDays} hari terisi bulan ini</div>
+        <button className="icon-btn" onClick={() => goTo('cover')} title="Kembali">←</button>
       </div>
 
       <div className="cal-wrap">
