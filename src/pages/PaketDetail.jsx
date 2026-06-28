@@ -96,6 +96,36 @@ async function toggleHafal(k) {
     muatSemua()
   }
 
+  async function editBagian() {
+    if (bagianList.length === 0) { alert('Belum ada bagian!'); return }
+    const pilih = prompt('Bagian mana yang mau di-rename?\n' + bagianList.map((b, i) => `${i + 1}. ${b}`).join('\n') + '\n\nKetik nomornya:')
+    const idx = parseInt(pilih) - 1
+    if (isNaN(idx) || idx < 0 || idx >= bagianList.length) return
+    const namaBaru = prompt('Nama baru untuk "' + bagianList[idx] + '":', bagianList[idx])
+    if (!namaBaru || !namaBaru.trim()) return
+    const next = [...bagianList]
+    const namaLama = next[idx]
+    next[idx] = namaBaru.trim()
+    await supabase.from('paket').update({ bagian_list: next }).eq('id', paketId)
+    await supabase.from('kata').update({ bagian: namaBaru.trim() }).eq('paket_id', paketId).eq('bagian', namaLama)
+    if (filterBagian === namaLama) setFilterBagian(namaBaru.trim())
+    muatSemua()
+  }
+
+  async function hapusBagian() {
+    if (bagianList.length === 0) { alert('Belum ada bagian!'); return }
+    const pilih = prompt('Bagian mana yang mau dihapus?\n' + bagianList.map((b, i) => `${i + 1}. ${b}`).join('\n') + '\n\nKetik nomornya:')
+    const idx = parseInt(pilih) - 1
+    if (isNaN(idx) || idx < 0 || idx >= bagianList.length) return
+    const namaHapus = bagianList[idx]
+    if (!confirm(`Hapus bagian "${namaHapus}"? Kata-katanya tidak ikut terhapus, tapi akan pindah ke tanpa bagian.`)) return
+    const next = bagianList.filter((_, i) => i !== idx)
+    await supabase.from('paket').update({ bagian_list: next }).eq('id', paketId)
+    await supabase.from('kata').update({ bagian: '' }).eq('paket_id', paketId).eq('bagian', namaHapus)
+    if (filterBagian === namaHapus) setFilterBagian('all')
+    muatSemua()
+  }
+
   async function editKata(k) {
     const jpBaru = prompt('Edit kata JP:', k.jp)
     if (jpBaru === null) return
@@ -274,6 +304,7 @@ async function tesLanjut() {
         <button className={`act-btn ${tampilkanHafal ? 'active' : ''}`} onClick={toggleTampilkanHafal}>⭐ Hafal saja</button>
         <button className="act-btn" onClick={() => startTes('id-jp')}>📝 Tes ▾</button>
         <button className="act-btn" onClick={() => startTes('jp-id')}>📝 Tes ▴</button>
+        <button className="act-btn" onClick={tambahBagian}>＋ Bagian</button>
         <button className="act-btn" onClick={() => setShowForm(s => !s)}>＋ Kata</button>
         <button className={`act-btn ${paket.pdf_path ? 'active' : ''}`} onClick={bukaPdf} title={paket.pdf_path ? 'Lihat PDF' : 'Belum ada PDF'}>📄</button>
         <div style={{ position: 'relative', marginLeft: 'auto' }}>
@@ -284,9 +315,12 @@ async function tesLanjut() {
               borderRadius: 10, padding: 6, display: 'flex', flexDirection: 'column', gap: 4,
               boxShadow: '0 4px 16px rgba(0,0,0,.1)', zIndex: 20, minWidth: 160,
             }}>
-              <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { tambahBagian(); setShowMenu(false) }}>＋ Bagian</button>
-              <button className={`act-btn ${editMode ? 'active' : ''}`} style={{ textAlign: 'left' }} onClick={() => { toggleEditMode(); setShowMenu(false) }}>✏️ Mode Edit</button>
-              <button className={`act-btn ${hapusMode ? 'active' : ''}`} style={{ textAlign: 'left' }} onClick={() => { toggleHapusMode(); setShowMenu(false) }}>🗑️ Mode Hapus</button>
+              <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { editBagian(); setShowMenu(false) }}>✏️ Edit Bagian</button>
+              <button className="act-btn" style={{ textAlign: 'left', color: '#c0392b' }} onClick={() => { hapusBagian(); setShowMenu(false) }}>🗑️ Hapus Bagian</button>
+              <div style={{ height: 1, background: '#eee', margin: '2px 0' }} />
+              <button className={`act-btn ${editMode ? 'active' : ''}`} style={{ textAlign: 'left' }} onClick={() => { toggleEditMode(); setShowMenu(false) }}>✏️ Edit Kata</button>
+              <button className={`act-btn ${hapusMode ? 'active' : ''}`} style={{ textAlign: 'left' }} onClick={() => { toggleHapusMode(); setShowMenu(false) }}>🗑️ Hapus Kata</button>
+              <div style={{ height: 1, background: '#eee', margin: '2px 0' }} />
               <button className="act-btn" style={{ textAlign: 'left', color: '#c0392b' }} onClick={() => { resetHafalan(); setShowMenu(false) }}>↺ Reset Hafalan</button>
             </div>
           )}
