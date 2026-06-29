@@ -334,8 +334,8 @@ export default function PaketDetail({ paketId, goTo }) {
           <button className="act-btn" onClick={() => setShowTesBawah(s => !s)}>📝 Tes ▾</button>
           {showTesBawah && (
             <div style={{ position: 'absolute', left: 0, top: 36, background: '#fff', border: '1.5px solid #ddd', borderRadius: 10, padding: 6, display: 'flex', flexDirection: 'column', gap: 4, boxShadow: '0 4px 16px rgba(0,0,0,.1)', zIndex: 20, minWidth: 180 }}>
-              <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { startTes('arti-jp'); setShowTesBawah(false) }}>Arti → JP</button>
-              <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { startTes('bunshuu-jp'); setShowTesBawah(false) }}>Bunshuu → JP</button>
+              <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { startTes('arti-jp'); setShowTesBawah(false) }}>Arti → JP Dasar/Natural</button>
+              <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { startTes('bunshuu-jp'); setShowTesBawah(false) }}>Bunshuu → JP Dasar/Natural</button>
             </div>
           )}
         </div>
