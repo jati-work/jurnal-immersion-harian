@@ -41,6 +41,8 @@ export default function PaketDetail({ paketId, goTo }) {
   const [editMode, setEditMode] = useState(false)
   const [hapusMode, setHapusMode] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
+  const [showTesBawah, setShowTesBawah] = useState(false)
+  const [showTesAtas, setShowTesAtas] = useState(false)
 
   // ----- tes (quiz) -----
   const [tes, setTes] = useState(null)
@@ -211,11 +213,9 @@ export default function PaketDetail({ paketId, goTo }) {
         >
           <div className="card-front">
             <div>{k.jp}</div>
-            {k.bentuk_natural && <div style={{ marginTop: 4, fontSize: '0.8em', opacity: 0.75 }}>{k.bentuk_natural}</div>}
           </div>
           <div className="card-back">
             <div>{k.arti}</div>
-            {k.bunshuu && <div style={{ marginTop: 4, fontSize: '0.75em', opacity: 0.8, fontFamily: "'DM Sans', sans-serif" }}>{k.bunshuu}</div>}
           </div>
         </div>
         <button className="hafal-toggle" onClick={(e) => { e.stopPropagation(); toggleHafal(k) }}>✓</button>
@@ -258,7 +258,12 @@ export default function PaketDetail({ paketId, goTo }) {
   function startTes(dir) {
     const sumber = (filterBagian !== 'all' ? kataList.filter(k => k.bagian === filterBagian) : kataList)
       .filter(k => !k.hafal)
-    if (sumber.length === 0) { alert('Semua kata di sini udah hafal, atau belum ada kata! 🎉'); return }
+      .filter(k => {
+        if (dir === 'bunshuu-jp') return !!k.bunshuu
+        if (dir === 'natural-arti') return !!k.bentuk_natural
+        return true
+      })
+    if (sumber.length === 0) { alert('Tidak ada kata yang sesuai untuk mode tes ini! 🎉'); return }
     const words = shuffle(sumber)
     setTes({ dir, words, idx: 0, correct: 0, wrong: 0, benarIds: [], answered: false, input: '', salah: false })
   }
@@ -268,11 +273,12 @@ export default function PaketDetail({ paketId, goTo }) {
     const val = tes.input.trim()
     if (!val) return
     let benar = false
-    if (tes.dir === 'id-jp') {
-      // soal: arti → jawaban diterima kalau cocok sama kanji dasar ATAU bentuk natural
-      benar = val === w.jp || (!!w.bentuk_natural && val === w.bentuk_natural)
+    if (tes.dir === 'arti-jp' || tes.dir === 'bunshuu-jp') {
+      // soal: arti atau bunshuu → jawaban JP (dasar atau natural)
+      benar = normalisasiJP(val) === normalisasiJP(w.jp) ||
+              (!!w.bentuk_natural && normalisasiJP(val) === normalisasiJP(w.bentuk_natural))
     } else {
-      // soal: kanji → jawaban diterima kalau cocok sama arti ATAU bunshuu
+      // soal: kanji dasar atau natural → jawaban arti atau bunshuu
       const cocokArti = w.arti.split(/[/;]/).map(normalisasiID).some(p => p === normalisasiID(val))
       const cocokBunshuu = !!w.bunshuu && normalisasiID(val) === normalisasiID(w.bunshuu)
       benar = cocokArti || cocokBunshuu
@@ -324,8 +330,24 @@ export default function PaketDetail({ paketId, goTo }) {
         <button className={`act-btn ${random ? 'active' : ''}`} onClick={toggleRandom}>🔀 Random</button>
         <button className={`act-btn ${sembunyikan ? 'active' : ''}`} onClick={toggleSembunyikan}>👁 Sembunyikan hafal</button>
         <button className={`act-btn ${tampilkanHafal ? 'active' : ''}`} onClick={toggleTampilkanHafal}>⭐ Hafal saja</button>
-        <button className="act-btn" onClick={() => startTes('id-jp')}>📝 Tes ▾</button>
-        <button className="act-btn" onClick={() => startTes('jp-id')}>📝 Tes ▴</button>
+        <div style={{ position: 'relative' }}>
+          <button className="act-btn" onClick={() => setShowTesBawah(s => !s)}>📝 Tes ▾</button>
+          {showTesBawah && (
+            <div style={{ position: 'absolute', left: 0, top: 36, background: '#fff', border: '1.5px solid #ddd', borderRadius: 10, padding: 6, display: 'flex', flexDirection: 'column', gap: 4, boxShadow: '0 4px 16px rgba(0,0,0,.1)', zIndex: 20, minWidth: 180 }}>
+              <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { startTes('arti-jp'); setShowTesBawah(false) }}>Arti → JP</button>
+              <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { startTes('bunshuu-jp'); setShowTesBawah(false) }}>Bunshuu → JP</button>
+            </div>
+          )}
+        </div>
+        <div style={{ position: 'relative' }}>
+          <button className="act-btn" onClick={() => setShowTesAtas(s => !s)}>📝 Tes ▴</button>
+          {showTesAtas && (
+            <div style={{ position: 'absolute', left: 0, top: 36, background: '#fff', border: '1.5px solid #ddd', borderRadius: 10, padding: 6, display: 'flex', flexDirection: 'column', gap: 4, boxShadow: '0 4px 16px rgba(0,0,0,.1)', zIndex: 20, minWidth: 180 }}>
+              <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { startTes('jp-arti'); setShowTesAtas(false) }}>Kanji Dasar → Jawab</button>
+              <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { startTes('natural-arti'); setShowTesAtas(false) }}>Kanji Natural → Jawab</button>
+            </div>
+          )}
+        </div>
         <button className="act-btn" onClick={tambahBagian}>＋ Bagian</button>
         <button className="act-btn" onClick={() => setShowForm(s => !s)}>＋ Kata</button>
         <button className={`act-btn ${paket.pdf_path ? 'active' : ''}`} onClick={bukaPdf} title={paket.pdf_path ? 'Lihat PDF' : 'Belum ada PDF'}>📄</button>
@@ -358,19 +380,18 @@ export default function PaketDetail({ paketId, goTo }) {
               {bagianList.map(b => <option key={b} value={b}>{b}</option>)}
             </select>
           )}
-          <div style={{ display: 'flex', gap: 6, alignItems: 'center', marginBottom: 6 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
             <input placeholder="Kata JP dasar (kanji/kana)" value={jp} onChange={e => setJp(e.target.value)}
-              style={{ flex: 1, padding: 8, borderRadius: 8, border: '1.5px solid #b8d8b8', fontFamily: "'Noto Serif JP', serif" }} />
+              style={{ padding: 8, borderRadius: 8, border: '1.5px solid #b8d8b8', fontFamily: "'Noto Serif JP', serif" }} />
             <input placeholder="Bentuk natural (opsional)" value={bentukNatural} onChange={e => setBentukNatural(e.target.value)}
-              style={{ flex: 1, padding: 8, borderRadius: 8, border: '1.5px solid #b8d8b8', fontFamily: "'Noto Serif JP', serif" }} />
-          </div>
-          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              style={{ padding: 8, borderRadius: 8, border: '1.5px solid #b8d8b8', fontFamily: "'Noto Serif JP', serif" }} />
             <input placeholder="Arti ID" value={arti} onChange={e => setArti(e.target.value)}
-              style={{ flex: 1, padding: 8, borderRadius: 8, border: '1.5px solid #b8d8b8' }} />
+              style={{ padding: 8, borderRadius: 8, border: '1.5px solid #b8d8b8' }} />
             <input placeholder="Bunshuu, romaji (opsional)" value={bunshuu} onChange={e => setBunshuu(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && simpanKata()}
-              style={{ flex: 1, padding: 8, borderRadius: 8, border: '1.5px solid #b8d8b8' }} />
-            <button className="act-btn active" onClick={simpanKata} style={{ whiteSpace: 'nowrap' }}>Simpan</button>
+              style={{ padding: 8, borderRadius: 8, border: '1.5px solid #b8d8b8' }} />
+            <button className="act-btn active" onClick={simpanKata}
+              style={{ gridColumn: '1 / -1', padding: 10, fontWeight: 600 }}>Simpan</button>
           </div>
         </div>
       )}
@@ -454,23 +475,29 @@ export default function PaketDetail({ paketId, goTo }) {
               <>
                 <div style={{ fontSize: 11, color: '#9abaa8', marginBottom: 6 }}>{tes.idx + 1} / {tes.words.length} · ✓ {tes.correct} · ✗ {tes.wrong}</div>
                 <div style={{ fontSize: 10, textTransform: 'uppercase', letterSpacing: '.08em', color: '#9abaa8', marginBottom: 4 }}>
-                  {tes.dir === 'id-jp' ? 'Tulis dalam huruf Jepang:' : 'Artinya dalam bahasa Indonesia (atau bunshuu):'}
+                  {tes.dir === 'arti-jp' ? 'Tulis JP-nya (dasar/natural):' :
+                   tes.dir === 'bunshuu-jp' ? 'Tulis JP-nya (dasar/natural):' :
+                   tes.dir === 'jp-arti' ? 'Arti atau bunshuu-nya:' :
+                   'Arti atau bunshuu-nya:'}
                 </div>
                 <div style={{ fontFamily: "'Noto Serif JP', serif", fontSize: 24, fontWeight: 600, marginBottom: 14, textAlign: 'center' }}>
-                  {tes.dir === 'id-jp' ? tes.words[tes.idx].arti : tes.words[tes.idx].jp}
+                  {tes.dir === 'arti-jp' ? tes.words[tes.idx].arti :
+                   tes.dir === 'bunshuu-jp' ? tes.words[tes.idx].bunshuu :
+                   tes.dir === 'jp-arti' ? tes.words[tes.idx].jp :
+                   tes.words[tes.idx].bentuk_natural}
                 </div>
                 <input
                   autoFocus value={tes.input} disabled={tes.answered}
                   onChange={e => setTes(t => ({ ...t, input: e.target.value }))}
                   onKeyDown={e => e.key === 'Enter' && (tes.answered ? tesLanjut() : tesCek())}
-                  style={{ textAlign: 'center', fontSize: 18, fontFamily: tes.dir === 'id-jp' ? "'Noto Serif JP', serif" : 'inherit', borderColor: tes.answered ? (tes.salah ? '#c0392b' : '#1e7d4f') : undefined }}
+                  style={{ textAlign: 'center', fontSize: 18, fontFamily: (tes.dir === 'arti-jp' || tes.dir === 'bunshuu-jp') ? "'Noto Serif JP', serif" : 'inherit', borderColor: tes.answered ? (tes.salah ? '#c0392b' : '#1e7d4f') : undefined }}
                 />
                 {tes.answered && tes.salah && (
                   <div style={{ textAlign: 'center', fontSize: 12, color: '#888', marginBottom: 8 }}>
                     Jawaban: <b>
-                      {tes.dir === 'id-jp'
-                        ? tes.words[tes.idx].jp + (tes.words[tes.idx].bentuk_natural ? ` (atau: ${tes.words[tes.idx].bentuk_natural})` : '')
-                        : tes.words[tes.idx].arti + (tes.words[tes.idx].bunshuu ? ` (atau bunshuu: ${tes.words[tes.idx].bunshuu})` : '')}
+                      {(tes.dir === 'arti-jp' || tes.dir === 'bunshuu-jp')
+                        ? tes.words[tes.idx].jp + (tes.words[tes.idx].bentuk_natural ? ` / ${tes.words[tes.idx].bentuk_natural}` : '')
+                        : tes.words[tes.idx].arti + (tes.words[tes.idx].bunshuu ? ` / ${tes.words[tes.idx].bunshuu}` : '')}
                     </b>
                   </div>
                 )}
