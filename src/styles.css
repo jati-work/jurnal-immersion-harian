@@ -128,7 +128,7 @@ button, input, textarea { font-family: inherit; }
 .card.hafal .hafal-toggle { background: #4caf50; color: #fff; opacity: 1; }
 
 .modal-overlay {
-  display: none; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 1000;
+  display: none; position: fixed; inset: 0; background: rgba(240,247,240,0.97); z-index: 1000;
   align-items: center; justify-content: center;
 }
 .modal-overlay.open { display: flex; }
