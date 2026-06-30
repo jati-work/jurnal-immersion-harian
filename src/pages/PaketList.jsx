@@ -297,7 +297,7 @@ async function hapusGrup(namaGrup) {
     )
   }
 
-  return (
+return (
     <div className="cover" style={{ justifyContent: 'flex-start', paddingTop: 60 }}>
       <button className="back-fab" onClick={() => goTo('cover')}>←</button>
       <div className="cover-inner">
@@ -354,30 +354,39 @@ async function hapusGrup(namaGrup) {
           const collapsed = collapsedGroups.has(key)
           return (
             <div key={key}>
-<div className="group-header" onClick={() => toggleGroup(key)}>
-  <div className="urutan-col" style={{ visibility: 'visible' }} onClick={e => e.stopPropagation()}>
-    <button onClick={() => pindahGrup(g.key, -1)} disabled={gi === 0}>▲</button>
-    <button onClick={() => pindahGrup(g.key, 1)} disabled={gi === groups.length - 1}>▼</button>
-  </div>
-  <span className="arrow" style={{ transform: collapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>▾</span>
-  <span className="label">{g.key}</span>
-  <span className="count">({g.items.length} paket)</span>
-  <div className="line" />
-  <div style={{ position: 'relative' }} data-grup-menu onClick={e => e.stopPropagation()}>
-    <button className="act-btn" onClick={() => setShowGrupMenu(showGrupMenu === key ? null : key)}>⋯</button>
-    {showGrupMenu === key && (
-      <div style={{
-        position: 'absolute', right: 0, top: 32, background: '#fff', border: '1.5px solid #ddd',
-        borderRadius: 10, padding: 6, display: 'flex', flexDirection: 'column', gap: 4,
-        boxShadow: '0 4px 16px rgba(0,0,0,.1)', zIndex: 20, minWidth: 160,
-      }}>
-        <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { tambahPaketDiGrup(g.key, g.urutanGrup); setShowGrupMenu(null) }}>＋ Tambah Paket</button>
-        <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { renameGrup(g.key); setShowGrupMenu(null) }}>✏️ Rename Grup</button>
-        <div style={{ height: 1, background: '#eee', margin: '2px 0' }} />
-        <button className="act-btn" style={{ textAlign: 'left', color: '#c0392b' }} onClick={() => { hapusGrup(g.key); setShowGrupMenu(null) }}>🗑️ Hapus Grup</button>
+              <div className="group-header" onClick={() => toggleGroup(key)}>
+                <div className="urutan-col" style={{ visibility: 'visible' }} onClick={e => e.stopPropagation()}>
+                  <button onClick={() => pindahGrup(g.key, -1)} disabled={gi === 0}>▲</button>
+                  <button onClick={() => pindahGrup(g.key, 1)} disabled={gi === groups.length - 1}>▼</button>
+                </div>
+                <span className="arrow" style={{ transform: collapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>▾</span>
+                <span className="label">{g.key}</span>
+                <span className="count">({g.items.length} paket)</span>
+                <div className="line" />
+                <div style={{ position: 'relative' }} data-grup-menu onClick={e => e.stopPropagation()}>
+                  <button className="act-btn" onClick={() => setShowGrupMenu(showGrupMenu === key ? null : key)}>⋯</button>
+                  {showGrupMenu === key && (
+                    <div style={{
+                      position: 'absolute', right: 0, top: 32, background: '#fff', border: '1.5px solid #ddd',
+                      borderRadius: 10, padding: 6, display: 'flex', flexDirection: 'column', gap: 4,
+                      boxShadow: '0 4px 16px rgba(0,0,0,.1)', zIndex: 20, minWidth: 160,
+                    }}>
+                      <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { tambahPaketDiGrup(g.key, g.urutanGrup); setShowGrupMenu(null) }}>＋ Tambah Paket</button>
+                      <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { renameGrup(g.key); setShowGrupMenu(null) }}>✏️ Rename Grup</button>
+                      <div style={{ height: 1, background: '#eee', margin: '2px 0' }} />
+                      <button className="act-btn" style={{ textAlign: 'left', color: '#c0392b' }} onClick={() => { hapusGrup(g.key); setShowGrupMenu(null) }}>🗑️ Hapus Grup</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              {!collapsed && g.items.map(({ p }) => (
+                <RowPaket key={p.id} p={p} itemsGrup={g.items} />
+              ))}
+            </div>
+          )
+        })}
+
       </div>
-    )}
-  </div>
-</div>
+    </div>
   )
 }
