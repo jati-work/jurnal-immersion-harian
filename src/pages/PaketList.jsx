@@ -319,6 +319,8 @@ export default function PaketList({ goTo, openPaket }) {
           </>
         )}
 
+        <button className="btn-dashed" onClick={tambahGrup}>＋ Grup baru</button>
+
         {!loading && !term && groups.map((g, gi) => {
           const key = g.key + '#' + gi
           const collapsed = collapsedGroups.has(key)
@@ -346,7 +348,6 @@ export default function PaketList({ goTo, openPaket }) {
           )
         })}
 
-        <button className="btn-dashed" onClick={tambahGrup}>＋ Grup baru</button>
       </div>
     </div>
   )
