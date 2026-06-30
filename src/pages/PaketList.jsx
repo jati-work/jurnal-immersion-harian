@@ -8,6 +8,7 @@ export default function PaketList({ goTo, openPaket }) {
   const [collapsedGroups, setCollapsedGroups] = useState(new Set())
   const [initedCollapse, setInitedCollapse] = useState(false)
   const [exportLoading, setExportLoading] = useState(false)
+  const [showGrupMenu, setShowGrupMenu] = useState(null) // isinya key grup yang lagi buka menu
 
   async function muatPaket() {
     setLoading(true)
@@ -170,6 +171,25 @@ export default function PaketList({ goTo, openPaket }) {
     else muatPaket()
   }
 
+  async function renameGrup(namaLama) {
+  const namaBaru = prompt('Nama baru untuk grup ini:', namaLama)
+  if (!namaBaru || !namaBaru.trim() || namaBaru.trim() === namaLama) return
+  const ids = paketList.filter(p => p.tanggal === namaLama).map(p => p.id)
+  for (const id of ids) {
+    await supabase.from('paket').update({ tanggal: namaBaru.trim() }).eq('id', id)
+  }
+  muatPaket()
+}
+
+async function hapusGrup(namaGrup) {
+  const anak = paketList.filter(p => p.tanggal === namaGrup)
+  if (!confirm(`Hapus grup "${namaGrup}" beserta ${anak.length} paket dan semua katanya?`)) return
+  for (const p of anak) {
+    await supabase.from('paket').delete().eq('id', p.id)
+  }
+  muatPaket()
+}
+
   async function editPaket(p) {
     const nama = prompt('Ubah nama paket:', p.nama)
     if (!nama || !nama.trim()) return
@@ -234,6 +254,14 @@ export default function PaketList({ goTo, openPaket }) {
       setInitedCollapse(true)
     }
   }, [groups, initedCollapse])
+
+  useEffect(() => {
+  function handleClickOutside(e) {
+    if (!e.target.closest('[data-grup-menu]')) setShowGrupMenu(null)
+  }
+  document.addEventListener('mousedown', handleClickOutside)
+  return () => document.removeEventListener('mousedown', handleClickOutside)
+}, [])
 
   function toggleGroup(key) {
     const next = new Set(collapsedGroups)
@@ -326,29 +354,30 @@ export default function PaketList({ goTo, openPaket }) {
           const collapsed = collapsedGroups.has(key)
           return (
             <div key={key}>
-              <div className="group-header" onClick={() => toggleGroup(key)}>
-                <div className="urutan-col" style={{ visibility: 'visible' }} onClick={e => e.stopPropagation()}>
-                  <button onClick={() => pindahGrup(g.key, -1)} disabled={gi === 0}>▲</button>
-                  <button onClick={() => pindahGrup(g.key, 1)} disabled={gi === groups.length - 1}>▼</button>
-                </div>
-                <span className="arrow" style={{ transform: collapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>▾</span>
-                <span className="label">{g.key}</span>
-                <span className="count">({g.items.length} paket)</span>
-                <div className="line" />
-                <button
-                  className="act-btn" title="Tambah paket di grup ini"
-                  onClick={e => { e.stopPropagation(); tambahPaketDiGrup(g.key, g.urutanGrup) }}
-                  style={{ fontSize: 11, whiteSpace: 'nowrap', marginLeft: 6 }}
-                >＋ Paket</button>
-              </div>
-              {!collapsed && g.items.map(({ p }) => (
-                <RowPaket key={p.id} p={p} itemsGrup={g.items} />
-              ))}
-            </div>
-          )
-        })}
-
+<div className="group-header" onClick={() => toggleGroup(key)}>
+  <div className="urutan-col" style={{ visibility: 'visible' }} onClick={e => e.stopPropagation()}>
+    <button onClick={() => pindahGrup(g.key, -1)} disabled={gi === 0}>▲</button>
+    <button onClick={() => pindahGrup(g.key, 1)} disabled={gi === groups.length - 1}>▼</button>
+  </div>
+  <span className="arrow" style={{ transform: collapsed ? 'rotate(-90deg)' : 'rotate(0deg)' }}>▾</span>
+  <span className="label">{g.key}</span>
+  <span className="count">({g.items.length} paket)</span>
+  <div className="line" />
+  <div style={{ position: 'relative' }} data-grup-menu onClick={e => e.stopPropagation()}>
+    <button className="act-btn" onClick={() => setShowGrupMenu(showGrupMenu === key ? null : key)}>⋯</button>
+    {showGrupMenu === key && (
+      <div style={{
+        position: 'absolute', right: 0, top: 32, background: '#fff', border: '1.5px solid #ddd',
+        borderRadius: 10, padding: 6, display: 'flex', flexDirection: 'column', gap: 4,
+        boxShadow: '0 4px 16px rgba(0,0,0,.1)', zIndex: 20, minWidth: 160,
+      }}>
+        <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { tambahPaketDiGrup(g.key, g.urutanGrup); setShowGrupMenu(null) }}>＋ Tambah Paket</button>
+        <button className="act-btn" style={{ textAlign: 'left' }} onClick={() => { renameGrup(g.key); setShowGrupMenu(null) }}>✏️ Rename Grup</button>
+        <div style={{ height: 1, background: '#eee', margin: '2px 0' }} />
+        <button className="act-btn" style={{ textAlign: 'left', color: '#c0392b' }} onClick={() => { hapusGrup(g.key); setShowGrupMenu(null) }}>🗑️ Hapus Grup</button>
       </div>
-    </div>
+    )}
+  </div>
+</div>
   )
 }
