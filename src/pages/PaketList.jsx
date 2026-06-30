@@ -65,10 +65,9 @@ export default function PaketList({ goTo, openPaket }) {
       pakets.forEach(([nama, { items }]) => {
         html += `<div style="font-size:13px; font-weight:700; color:#1a1a1a; margin-top:18px; margin-bottom:8px; border-bottom:1.5px solid #b8d8b8; padding-bottom:4px;">${nama}</div>`
 items.forEach(it => {
-  html += `<div style="position:relative; padding:16px 4px; border-bottom:1px solid #e5e5e5;">
-    <div style="font-family:'Noto Serif JP', serif; font-size:15px; line-height:1.5; padding-right:20px; box-sizing:border-box; width:385px; display:inline-block; vertical-align:top;">${it.jp}</div>
-    <div style="position:absolute; left:385px; top:16px; bottom:16px; width:1px; background:#ccc;"></div>
-    <div style="color:#444; line-height:1.5; padding-left:20px; box-sizing:border-box; width:calc(636px - 385px); display:inline-block; vertical-align:top;">${it.arti}</div>
+  html += `<div style="display:grid; grid-template-columns:420px 1fr; gap:0; align-items:baseline; font-size:12px; padding:10px 4px; border-bottom:1px solid #e5e5e5;">
+    <div style="font-family:'Noto Serif JP', serif; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${it.jp}</div>
+    <div style="color:#444;">${it.arti}</div>
   </div>`
 })
       })
