@@ -205,10 +205,19 @@ export default function PaketDetail({ paketId, goTo }) {
     setTampilkanHafal(t => { const next = !t; if (next) setSembunyikan(false); return next })
   }
   function toggleEditMode() {
-    setEditMode(e => { const next = !e; if (next) setHapusMode(false); return next })
+    setEditMode(e => {
+      const next = !e
+      if (next) setHapusMode(false)
+      else if (editingId) batalForm()
+      return next
+    })
   }
   function toggleHapusMode() {
-    setHapusMode(h => { const next = !h; if (next) setEditMode(false); return next })
+    setHapusMode(h => {
+      const next = !h
+      if (next) { setEditMode(false); if (editingId) batalForm() }
+      return next
+    })
   }
 
   const displayList = useMemo(() => {
@@ -418,12 +427,9 @@ export default function PaketDetail({ paketId, goTo }) {
             <input placeholder="Bunshuu, romaji (opsional)" value={bunshuu} onChange={e => setBunshuu(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && simpanKata()}
               style={{ padding: 8, borderRadius: 8, border: '1.5px solid #b8d8b8' }} />
-            <div style={{ gridColumn: '1 / -1', display: 'flex', gap: 6 }}>
-              {editingId && (
-                <button className="act-btn" onClick={batalForm} style={{ flex: 1, padding: 10 }}>Batal</button>
-              )}
+            <div style={{ gridColumn: '1 / -1' }}>
               <button className="act-btn active" onClick={simpanKata}
-                style={{ flex: 1, padding: 10, fontWeight: 600 }}>{editingId ? 'Update' : 'Simpan'}</button>
+                style={{ width: '100%', padding: 10, fontWeight: 600 }}>{editingId ? 'Update' : 'Simpan'}</button>
             </div>
           </div>
         </div>
