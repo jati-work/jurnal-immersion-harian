@@ -121,10 +121,11 @@ export default function PaketDetail({ paketId, goTo }) {
 
   function toggleForm() {
     if (showForm) batalForm()
-    else setShowForm(true)
+    else { tutupPanelLain(); setShowForm(true) }
   }
 
   async function tambahBagian() {
+    tutupPanelLain()
     const nama = prompt('Nama bagian baru (contoh: Episode 1, 20 menit awal):')
     if (!nama || !nama.trim()) return
     const next = [...bagianList, nama.trim()]
@@ -133,6 +134,7 @@ export default function PaketDetail({ paketId, goTo }) {
   }
 
   async function editBagian() {
+    tutupPanelLain()
     if (bagianList.length === 0) { alert('Belum ada bagian!'); return }
     const pilih = prompt('Bagian mana yang mau di-rename?\n' + bagianList.map((b, i) => `${i + 1}. ${b}`).join('\n') + '\n\nKetik nomornya:')
     const idx = parseInt(pilih) - 1
@@ -149,6 +151,7 @@ export default function PaketDetail({ paketId, goTo }) {
   }
 
   async function hapusBagian() {
+    tutupPanelLain()
     if (bagianList.length === 0) { alert('Belum ada bagian!'); return }
     const pilih = prompt('Bagian mana yang mau dihapus?\n' + bagianList.map((b, i) => `${i + 1}. ${b}`).join('\n') + '\n\nKetik nomornya:')
     const idx = parseInt(pilih) - 1
@@ -179,9 +182,18 @@ export default function PaketDetail({ paketId, goTo }) {
   }
 
   async function resetHafalan() {
+    tutupPanelLain()
     if (!confirm('Yakin mau reset semua hafalan di paket ini? Semua kata bakal balik jadi belum hafal.')) return
     await supabase.from('kata').update({ hafal: false }).eq('paket_id', paketId)
     muatSemua()
+  }
+
+  function tutupPanelLain() {
+    batalForm()
+    setEditMode(false)
+    setHapusMode(false)
+    setTes(null)
+    setShowPdf(false)
   }
 
   function klikKartu(k) {
@@ -207,7 +219,7 @@ export default function PaketDetail({ paketId, goTo }) {
   function toggleEditMode() {
     setEditMode(e => {
       const next = !e
-      if (next) setHapusMode(false)
+      if (next) { setHapusMode(false); setTes(null); setShowPdf(false); batalForm() }
       else if (editingId) batalForm()
       return next
     })
@@ -215,7 +227,7 @@ export default function PaketDetail({ paketId, goTo }) {
   function toggleHapusMode() {
     setHapusMode(h => {
       const next = !h
-      if (next) { setEditMode(false); if (editingId) batalForm() }
+      if (next) { setEditMode(false); setTes(null); setShowPdf(false); batalForm() }
       return next
     })
   }
@@ -258,6 +270,7 @@ export default function PaketDetail({ paketId, goTo }) {
   }
 
   async function bukaPdf() {
+    tutupPanelLain()
     if (!paket?.pdf_path) { setShowPdf(true); return }
     const { data, error } = await supabase.storage.from('immersion-pdfs').createSignedUrl(paket.pdf_path, 3600)
     if (error) { alert('Gagal ambil PDF: ' + error.message); return }
@@ -299,6 +312,7 @@ export default function PaketDetail({ paketId, goTo }) {
         return true
       })
     if (sumber.length === 0) { alert('Tidak ada kata yang sesuai untuk mode tes ini!'); return }
+    tutupPanelLain()
     const words = shuffle(sumber)
     setTes({ dir, words, idx: 0, correct: 0, wrong: 0, benarIds: [], answered: false, input: '', salah: false })
   }
