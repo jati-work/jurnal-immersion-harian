@@ -50,6 +50,11 @@ export default function PaketDetail({ paketId, goTo }) {
       setShowMenu(false)
       setShowTesBawah(false)
     }
+    if (!e.target.closest('[data-form-area]') && !e.target.closest('.card') && !e.target.closest('.modal-overlay')) {
+      batalForm()
+      setEditMode(false)
+      setHapusMode(false)
+    }
   }
   document.addEventListener('mousedown', handleClickOutside)
   return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -420,7 +425,7 @@ export default function PaketDetail({ paketId, goTo }) {
       </div>
 
       {showForm && (
-        <div style={{ background: '#f0f7f0', borderRadius: 10, padding: 14, margin: '0 10px 10px', border: '1.5px solid #b8d8b8' }}>
+        <div data-form-area style={{ background: '#f0f7f0', borderRadius: 10, padding: 14, margin: '0 10px 10px', border: '1.5px solid #b8d8b8' }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: '#2d6a4a', marginBottom: 8, letterSpacing: '.04em', textTransform: 'uppercase' }}>
             {editingId ? '✏️ Edit Kata' : '＋ Tambah Kata'}
           </div>
