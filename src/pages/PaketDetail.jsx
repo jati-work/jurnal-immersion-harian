@@ -484,7 +484,7 @@ export default function PaketDetail({ paketId, goTo }) {
 
       {tes && (
         <div className="modal-overlay open">
-          <div className="modal-box" style={{ maxWidth: 380 }}>
+          <div className="modal-box" style={{ maxWidth: tes.dir === 'natural-dasar' ? 560 : 380 }}>
             {!selesai ? (
               <>
                 <div style={{ fontSize: 11, color: '#9abaa8', marginBottom: 6 }}>{tes.idx + 1} / {tes.words.length} · ✓ {tes.correct} · ✗ {tes.wrong}</div>
@@ -498,7 +498,13 @@ export default function PaketDetail({ paketId, goTo }) {
                   autoFocus value={tes.input} disabled={tes.answered}
                   onChange={e => setTes(t => ({ ...t, input: e.target.value }))}
                   onKeyDown={e => e.key === 'Enter' && (tes.answered ? tesLanjut() : tesCek())}
-                  style={{ textAlign: 'center', fontSize: 18, fontFamily: ['arti-dasar','bunshuu-kanji','natural-dasar'].includes(tes.dir) ? "'Noto Serif JP', serif" : 'inherit', borderColor: tes.answered ? (tes.salah ? '#c0392b' : '#1e7d4f') : undefined }}
+                  style={{
+                    textAlign: 'center', fontSize: 18,
+                    fontFamily: ['arti-dasar','bunshuu-kanji','natural-dasar'].includes(tes.dir) ? "'Noto Serif JP', serif" : 'inherit',
+                    borderColor: tes.answered ? (tes.salah ? '#c0392b' : '#1e7d4f') : undefined,
+                    width: tes.dir === 'natural-dasar' ? '100%' : undefined,
+                    boxSizing: tes.dir === 'natural-dasar' ? 'border-box' : undefined,
+                  }}
                 />
                 {tes.answered && tes.salah && (
                   <div style={{ textAlign: 'center', fontSize: 12, color: '#888', marginBottom: 8 }}>
